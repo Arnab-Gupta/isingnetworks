@@ -74,7 +74,20 @@ class IsingModel():
         return np.abs(mag)/float(self.size), ene
     
     def viz(self, J, temperature, iterations, initial_state):
+        """Simulate and visualise the energy and magnetization wrt a temperature range.
         
+        Parameters
+        ----------
+        J : int
+            This is the interaction coefficient.
+        temperature: array_like
+            This is the temperature range over which the model shall be simulated.
+        iterations: int
+            This is the number of iterations per temperature value.
+        initial_state: int [0,1]
+            This is the initial state of all nodes of the system.
+
+        """
         mag = np.zeros(len(temperature))
         ene = np.zeros(len(temperature))
         
