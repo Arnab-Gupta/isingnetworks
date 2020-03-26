@@ -3,6 +3,7 @@ import numpy as np
 import math
 import random
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 class IsingModel():
     
@@ -65,5 +66,29 @@ class IsingModel():
             ene = self.netenergy()
             
         return np.abs(mag)/float(self.size), ene
+    
+    def viz(self, J, temperature, iterations, initial_state):
+        
+        mag = np.zeros(len(temperature))
+        ene = np.zeros(len(temperature))
+        
+        for i in range(len(temperature)):
+            mag[i], ene[i] = self.simulate(J, temperature[i], iterations, initial_state)
+        
+        plt.figure()
+        plt.plot(temperature, mag)
+        plt.xlabel('Temperature')
+        plt.ylabel('Magnetization')
+        plt.title('Magnetization vs Temperature')
+        
+        plt.figure()
+        plt.plot(temperature, ene)
+        plt.xlabel('Temperature')
+        plt.ylabel('Energy')
+        plt.title('Energy vs Temperature')
+        
+        
+        
+        
 
 
