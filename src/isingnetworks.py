@@ -17,11 +17,11 @@ class IsingModel():
         
         self.state = np.random.choice([-1,1], self.size, p=[1-initial_state, initial_state])
     
-    def netmag(self):
+    def __netmag(self):
         
         return np.sum(self.state)
     
-    def netenergy(self):
+    def __netenergy(self):
         en = 0.
         adj_matrix = nx.adjacency_matrix(self.graph)
         top = adj_matrix.todense()
@@ -47,7 +47,7 @@ class IsingModel():
             s = -s
         self.state[rsnode] = s
         
-    def simulate(self, J, temperature, iterations, initial_state):
+    def simulate(self, J, temperature, iterations, initial_state, tqdmx = True):
         
         if np.abs(initial_state) > 1:
             raise Exception("initial_state should be between 0 and 1")
@@ -60,10 +60,16 @@ class IsingModel():
     
         self.initialize(initial_state)
         # initialize spin vector
-        for i in tqdm(range(iterations)):
-            self.__montecarlo(top)
-            mag = self.netmag()
-            ene = self.netenergy()
+        if tqdmx == True:
+            for i in tqdm(range(iterations)):
+                self.__montecarlo(top)
+                mag = self.__netmag()
+                ene = self.__netenergy()
+        else:
+            for i in (range(iterations)):
+                self.__montecarlo(top)
+                mag = self.__netmag()
+                ene = self.__netenergy()
             
         return np.abs(mag)/float(self.size), ene
     
@@ -72,8 +78,9 @@ class IsingModel():
         mag = np.zeros(len(temperature))
         ene = np.zeros(len(temperature))
         
-        for i in range(len(temperature)):
-            mag[i], ene[i] = self.simulate(J, temperature[i], iterations, initial_state)
+        for i in tqdm(range(len(temperature))):
+            print(" Temp : " + str(temperature[i]))
+            mag[i], ene[i] = self.simulate(J, temperature[i], iterations, initial_state, tqdmx = False)
         
         plt.figure()
         plt.plot(temperature, mag)
@@ -86,6 +93,8 @@ class IsingModel():
         plt.xlabel('Temperature')
         plt.ylabel('Energy')
         plt.title('Energy vs Temperature')
+        
+        return mag, ene
         
         
         
