@@ -6,6 +6,8 @@ Given any network built using the networkx package as input, this package runs M
 
 Version 1.0.2: This has an added visualizer to plot the output graphs.
 
+Version 1.0.4: The Github repo has an added ipynb that can be referred to for instructions about usage.
+
 ## Installation
 
 Run the following to install:
