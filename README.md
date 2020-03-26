@@ -8,5 +8,5 @@ Given any network built using the networkx package as input, this package runs M
 
 Run the following to install:
 ```python
-pip install ising-networks
+pip install isingnetworks
 ```
