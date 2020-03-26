@@ -12,3 +12,22 @@ Run the following to install:
 ```python
 pip install isingnetworks
 ```
+
+## Usage 
+
+Import the class:
+```python
+from isingnetworks import IsingModel
+```
+
+Create a graph (g) using networkx.
+
+Create an intance of the IsingModel class:
+```python
+model = IsingModel(g)
+```
+
+Using the viz function:
+```python
+model.viz(J, temperature_array, no_of_iterations, initial_state)
+```
