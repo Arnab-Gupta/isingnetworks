@@ -97,22 +97,6 @@ class IsingModel():
             
         return np.abs(mag)/float(self.size), ene
 
-    def simulate_parallel(self, temp):
-
-        self.temperature = temp
-
-        adj_matrix = nx.adjacency_matrix(self.graph)
-        top = adj_matrix.todense()
-
-        self.initialize(self.initial_state)
-        # initialize spin vector
-        
-        for i in range(self.iterations):
-            self.__montecarlo(top)
-            mag = self.__netmag()
-            ene = self.__netenergy()
-        
-        return np.abs(mag)/float(self.size), ene
     
     def viz(self, temperature):
         """Simulate and visualise the energy and magnetization wrt a temperature range.
@@ -156,8 +140,8 @@ class IsingModel():
 
         mag = []
         ene = []
-        with cf.ThreadPoolExecutor() as ex:
-            results = ex.map(self.simulate_parallel, [i for i in temperature])
+        with cf.ProcessPoolExecutor() as ex:
+            results = ex.map(self.simulate, [i for i in temperature])
 
         comb_res = []
         for r in results:
