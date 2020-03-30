@@ -45,6 +45,9 @@ class IsingModel():
         initial_state: int [0,1]
             This is the initial state of all nodes of the system.
         """
+        if np.abs(initial_state) > 1:
+            raise Exception("initial_state should be between 0 and 1")
+        
         self.initial_state = initial_state
     
     def __netmag(self):
@@ -78,9 +81,6 @@ class IsingModel():
         self.state[rsnode] = s
         
     def simulate(self, temperature):
-        
-        if np.abs(self.initial_state) > 1:
-            raise Exception("initial_state should be between 0 and 1")
         
         self.temperature = temperature
         
