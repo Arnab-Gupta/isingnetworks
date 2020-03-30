@@ -19,13 +19,32 @@ class IsingModel():
         self.state = np.random.choice([-1,1], self.size, p=[1-initial_state, initial_state])
 
     def set_J(self, J):
+        """Set the value of J
 
+        Parameter(s)
+        ----------
+        J : int
+            This is the interaction coefficient.
+        """
         self.J = J
 
     def set_iterations(self, iterations):
+        """Set your desired number of iterations per temperature value
+
+        Parameter(s)
+        ----------
+        iterations: int
+            This is the number of iterations per temperature value.
+        """
         self.iterations = iterations
 
     def set_initial_state(self, initial_state):
+        """Set initial state
+
+        Parameter(s):
+        initial_state: int [0,1]
+            This is the initial state of all nodes of the system.
+        """
         self.initial_state = initial_state
     
     def __netmag(self):
@@ -60,10 +79,9 @@ class IsingModel():
         
     def simulate(self, temperature):
         
-        if np.abs(initial_state) > 1:
+        if np.abs(self.initial_state) > 1:
             raise Exception("initial_state should be between 0 and 1")
         
-        self.J = J
         self.temperature = temperature
         
         adj_matrix = nx.adjacency_matrix(self.graph)
@@ -101,14 +119,8 @@ class IsingModel():
         
         Parameters
         ----------
-        J : int
-            This is the interaction coefficient.
         temperature: array_like
             This is the temperature range over which the model shall be simulated.
-        iterations: int
-            This is the number of iterations per temperature value.
-        initial_state: int [0,1]
-            This is the initial state of all nodes of the system.
 
         """
         mag = np.zeros(len(temperature))
@@ -133,51 +145,42 @@ class IsingModel():
         return mag, ene
 
     def viz_parallel(self, temperature):
-        """Simulate and visualise the energy and magnetization wrt a temperature range.
+        """Simulate and visualise the energy and magnetization wrt a temperature range with python parallelization.
         
         Parameters
         ----------
-        J : int
-            This is the interaction coefficient.
         temperature: array_like
             This is the temperature range over which the model shall be simulated.
-        iterations: int
-            This is the number of iterations per temperature value.
-        initial_state: int [0,1]
-            This is the initial state of all nodes of the system.
 
         """
 
-        if __name__ == '__main__':
-            mag = []
-            ene = []
-            with cf.ThreadPoolExecutor() as ex:
-                results = ex.map(self.simulate_parallel, [i for i in temperature])
+        mag = []
+        ene = []
+        with cf.ThreadPoolExecutor() as ex:
+            results = ex.map(self.simulate_parallel, [i for i in temperature])
 
-            comb_res = []
-            for r in results:
-                comb_res.append(r)
+        comb_res = []
+        for r in results:
+            comb_res.append(r)
 
-            for cr in comb_res:
-                mag.append(cr[0])
-                ene.append(cr[1])
+        # store the values of magnetization and energy returned by ex.map() into their respective arrays
+        for cr in comb_res:
+            mag.append(cr[0])
+            ene.append(cr[1])
 
-            plt.figure()
-            plt.plot(temperature, mag)
-            plt.xlabel('Temperature')
-            plt.ylabel('Magnetization')
-            plt.title('Magnetization vs Temperature')
+        plt.figure()
+        plt.plot(temperature, mag)
+        plt.xlabel('Temperature')
+        plt.ylabel('Magnetization')
+        plt.title('Magnetization vs Temperature')
 
-            plt.figure()
-            plt.plot(temperature, ene)
-            plt.xlabel('Temperature')
-            plt.ylabel('Energy')
-            plt.title('Energy vs Temperature')
+        plt.figure()
+        plt.plot(temperature, ene)
+        plt.xlabel('Temperature')
+        plt.ylabel('Energy')
+        plt.title('Energy vs Temperature')
 
-            return mag, ene
+        return mag, ene
+
         
         
-        
-        
-
-
