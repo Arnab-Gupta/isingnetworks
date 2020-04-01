@@ -13,6 +13,9 @@ class IsingModel():
         self.name = "IsingModel"
         self.size = graph.number_of_nodes()
         self.graph = graph
+        self.list_of_neigh = {}
+        for node in self.graph.nodes():
+            self.list_of_neigh[node] = list(self.graph.neighbors(node))
         
     def initialize(self, initial_state):
         
@@ -56,21 +59,19 @@ class IsingModel():
     
     def __netenergy(self):
         en = 0.
-        adj_matrix = nx.adjacency_matrix(self.graph)
-        top = adj_matrix.todense()
         for i in range(self.size):
-            ss = np.sum(self.state[top[i].nonzero()[1]])
+            ss = np.sum(self.state[self.list_of_neigh[i]])
             en += self.state[i] * ss
         return -0.5 * self.J * en
     
-    def __montecarlo(self, top):
+    def __montecarlo(self):
         # pick a random source node
         beta = 1/self.temperature
         rsnode = np.random.randint(0, self.size)
         # get the spin of this node
         s = self.state[rsnode]
         # sum of all neighbouring spins
-        ss = np.sum(self.state[top[rsnode].nonzero()[1]])
+        ss = np.sum(self.state[self.list_of_neigh[rsnode]])
         # transition energy
         delE = 2.0 * self.J * ss * s
         # calculate transition probability
@@ -80,23 +81,27 @@ class IsingModel():
             s = -s
         self.state[rsnode] = s
         
-    def simulate(self, temperature):
+    def simulate(self, temperature, energy = True):
         
         self.temperature = temperature
-        
-        adj_matrix = nx.adjacency_matrix(self.graph)
-        top = adj_matrix.todense()
     
         self.initialize(self.initial_state)
         # initialize spin vector
         
-        for i in range(self.iterations):
-            self.__montecarlo(top)
-            mag = self.__netmag()
-            ene = self.__netenergy()
-            
-        return np.abs(mag)/float(self.size), ene
-
+        if energy == True:
+            for i in range(self.iterations):
+                self.__montecarlo()
+                mag = self.__netmag()
+                ene = self.__netenergy()
+            return np.abs(mag)/float(self.size), ene
+        else:
+            for i in range(self.iterations):
+                self.__montecarlo()
+                mag = self.__netmag()
+            return np.abs(mag)/float(self.size)
+        
+    def sim_fast(self, temperature):
+        self.simulate(temperature, energy = False)
     
     def viz(self, temperature):
         """Simulate and visualise the energy and magnetization wrt a temperature range.
@@ -137,7 +142,6 @@ class IsingModel():
             This is the temperature range over which the model shall be simulated.
 
         """
-
         mag = []
         ene = []
         with cf.ProcessPoolExecutor() as ex:
@@ -165,3 +169,47 @@ class IsingModel():
         plt.title('Energy vs Temperature')
 
         return mag, ene
+    
+    def viz_fast(self, temperature):
+        """Simulate and visualise the magnetization wrt a temperature range.
+        
+        Parameters
+        ----------
+        temperature: array_like
+            This is the temperature range over which the model shall be simulated.
+
+        """
+        mag = np.zeros(len(temperature))
+        
+        for i in tqdm(range(len(temperature))):
+            # print(" Temp : " + str(temperature[i]))
+            mag[i] = self.simulate(temperature[i], energy = False)
+        
+        plt.figure()
+        plt.plot(temperature, mag)
+        plt.xlabel('Temperature')
+        plt.ylabel('Magnetization')
+        plt.title('Magnetization vs Temperature')
+        
+        return mag
+    
+    def viz_fast_parallel(self, temperature):
+        """Simulate and visualise the magnetization wrt a temperature range with python parallelization.
+        
+        Parameters
+        ----------
+        temperature: array_like
+            This is the temperature range over which the model shall be simulated.
+
+        """
+        with cf.ProcessPoolExecutor() as ex:
+            results = list(ex.map(self.sim_fast, [i for i in temperature]))
+
+        plt.figure()
+        plt.plot(temperature, results)
+        plt.xlabel('Temperature')
+        plt.ylabel('Magnetization')
+        plt.title('Magnetization vs Temperature')
+        
+        return results
+
