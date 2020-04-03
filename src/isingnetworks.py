@@ -3,8 +3,9 @@ import numpy as np
 import math
 import random
 from tqdm import tqdm
-import concurrent.futures as cf
 import matplotlib.pyplot as plt
+from joblib import Parallel, delayed
+import multiprocessing
 
 class IsingModel():
     
@@ -101,7 +102,7 @@ class IsingModel():
             return np.abs(mag)/float(self.size)
         
     def sim_fast(self, temperature):
-        self.simulate(temperature, energy = False)
+        return self.simulate(temperature, energy = False)
     
     def viz(self, temperature):
         """Simulate and visualise the energy and magnetization wrt a temperature range.
@@ -144,15 +145,10 @@ class IsingModel():
         """
         mag = []
         ene = []
-        with cf.ProcessPoolExecutor() as ex:
-            results = ex.map(self.simulate, [i for i in temperature])
-
-        comb_res = []
-        for r in results:
-            comb_res.append(r)
-
-        # store the values of magnetization and energy returned by ex.map() into their respective arrays
-        for cr in comb_res:
+        num_cores = multiprocessing.cpu_count()
+        results = Parallel(n_jobs=num_cores)(delayed(self.simulate)(i) for i in temperature)
+    
+        for cr in results:
             mag.append(cr[0])
             ene.append(cr[1])
 
@@ -202,9 +198,11 @@ class IsingModel():
             This is the temperature range over which the model shall be simulated.
 
         """
-        with cf.ProcessPoolExecutor() as ex:
-            results = list(ex.map(self.sim_fast, [i for i in temperature]))
-
+        num_cores = multiprocessing.cpu_count()
+        results = Parallel(n_jobs=num_cores)(delayed(self.sim_fast)(i) for i in temperature)
+        
+        print(results)
+        
         plt.figure()
         plt.plot(temperature, results)
         plt.xlabel('Temperature')
@@ -212,4 +210,3 @@ class IsingModel():
         plt.title('Magnetization vs Temperature')
         
         return results
-

@@ -10,12 +10,20 @@ Version 1.0.4: The Github repo has an added ipynb that can be referred to for in
 
 Version 1.0.10: A new parallel implementation has been added.
 
+Version 1.1.1: Two much faster functions have been added for both serial and parallel simulations.
+
 ## Installation
 
 Run the following to install:
 ```python
 pip install isingnetworks
 ```
+
+Additional packages required:
+```python
+pip install joblib
+```
+
 
 ## Usage 
 
@@ -42,4 +50,8 @@ model.viz(temperature_array)
 
 # Parallel Implementation
 model.viz_parallel(temperature_array)
+
+# Faster Implementations
+model.viz_fast(temperature_array)
+model.viz_fast_parallel(temperature_array)
 ```
