@@ -100,6 +100,18 @@ class IsingModel():
                 self.__montecarlo()
                 mag = self.__netmag()
             return np.abs(mag)/float(self.size)
+
+    def simulate_decay(self, temperature):
+        
+        self.temperature = temperature
+        
+        self.initialize(self.initial_state)
+        
+        for i in range(self.iterations):
+            self.__montecarlo()
+            mag = self.__netmag()
+            if mag <= (0.75*self.orig_mag):
+                return i
         
     def sim_fast(self, temperature):
         return self.simulate(temperature, energy = False)
@@ -210,3 +222,75 @@ class IsingModel():
         plt.title('Magnetization vs Temperature')
         
         return results
+
+    def viz_decay(self, N, temperature, ensemble=5):
+        """A simulation which returns number of steps required for the magnetization in the network to decay to 0.75 of original value.
+
+        Parameters
+        ----------
+        N: int
+            size of the network
+
+        temperature: array_like
+            temperature range over which the model is simulated
+
+        ensemble: number of samples from which the median is considered
+
+        Returns
+        -------
+        the decay time array
+
+        """
+        self.orig_mag = N
+        tau = np.zeros(len(temperature))
+        tau_2 = np.zeros(ensemble)
+        for i in tqdm(range(len(temperature))):
+            for j in range(ensemble):
+                tau_2[j] = self.simulate_decay(temperature[i])
+            tau[i] = np.median(tau_2)
+            
+        plt.figure()
+        plt.style.use('seaborn-whitegrid')
+        plt.plot(temperature, tau, 'x')
+        plt.xlabel('Temperature')
+        plt.ylabel('Tau')
+        plt.xscale('log')
+        plt.yscale('log')
+        
+        return tau
+
+    def curie_temp(self, end, ensemble, start=0.1, threshold=0.1):
+        """Determines the Curie temperature / critical temperature
+
+        Parameters
+        ----------
+
+        end: float
+            upper limit of the temperature range
+
+        ensemble: int
+            number of samples from which the median is evaluated
+
+        start: float
+            lower limit of the temperature range
+
+        threshold: float
+            value to which the original magnetization must decay at the Curie temperature
+        """
+        
+        orig_mag = self.size
+        
+        step_size = (end - start)/30
+        
+        res = np.zeros(ensemble)
+        
+        temperature = np.arange(start, end, step_size)
+        for t in tqdm(range(ensemble)):
+            for i in tqdm(range(len(temperature))):
+                # print(" Temp : " + str(temperature[i]))
+                mag = self.simulate(temperature[i], energy = False)
+                if mag < threshold:
+                    res[t] = temperature[i]
+                    break                    
+                    
+        return np.median(res)
