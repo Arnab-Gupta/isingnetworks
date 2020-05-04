@@ -12,7 +12,7 @@ Version 1.0.10: A new parallel implementation has been added.
 
 Version 1.1.1: Two much faster functions have been added for both serial and parallel simulations.
 
-Version 1.1.2: Added functions to calculate Curie temperature and decay time.
+Version 1.1.3: Added functions to calculate Curie temperature and decay time.
 
 ## Installation
 

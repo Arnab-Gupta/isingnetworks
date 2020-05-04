@@ -5,7 +5,7 @@ with open ("README.md",  "r") as fh:
 
 setup(
 	name='isingnetworks',
-	version='1.1.2',
+	version='1.1.3',
 	description='This package is the implementation of the Ising Model on complex networks.',
 	long_description=long_description,
 	long_description_content_type="text/markdown",
