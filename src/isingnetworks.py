@@ -294,3 +294,11 @@ class IsingModel():
                     break                    
                     
         return np.median(res)
+
+    def mean_degree(self, directed=False):
+	        
+        n_edges = self.graph.number_of_edges()
+        if directed == True:
+            return n_edges/self.size
+        return (2*n_edges/self.size)
+    

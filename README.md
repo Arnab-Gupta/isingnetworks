@@ -14,6 +14,8 @@ Version 1.1.1: Two much faster functions have been added for both serial and par
 
 Version 1.1.3: Added functions to calculate Curie temperature and decay time.
 
+Version 1.1.4: Added a function to compute average degree
+
 ## Installation
 
 Run the following to install:
