@@ -38,7 +38,7 @@ from isingnetworks import IsingModel
 
 Create a graph (g) using networkx.
 
-Create an intance of the IsingModel class:
+Create an instance of the IsingModel class:
 ```python
 model = IsingModel(g)
 ```
